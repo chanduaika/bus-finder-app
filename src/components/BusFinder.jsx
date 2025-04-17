@@ -159,6 +159,12 @@ const BUS_DATA = {
 };
 
 const destinations = [...new Set(Object.values(BUS_DATA).flat())];
+const FAKE_COORDINATES = {
+  "Gajuwaka": { lat: 17.7, lng: 83.2 },
+  "Vijayawada": { lat: 16.5062, lng: 80.6480 },
+  // Add more destinations here
+};
+
 
 export default function BusFinder() {
   const [busNumber, setBusNumber] = useState('');
@@ -166,15 +172,26 @@ export default function BusFinder() {
   const [result, setResult] = useState('');
   const [selectedStop, setSelectedStop] = useState('');
   const [passingBuses, setPassingBuses] = useState([]);
+  const [mapLocation, setMapLocation] = useState(null); // 👈 new state
+  console.log("Destination:", destination);
+  console.log("Map location:", mapLocation);
 
   const checkBusRoute = () => {
     const route = BUS_DATA[busNumber.toUpperCase()];
     if (route && route.includes(destination)) {
-      setResult(`Yes, Bus ${busNumber.toUpperCase()} passes through ${destination}.`);
+      setResult(`✅ Yes, Bus ${busNumber.toUpperCase()} passes through ${destination}.`);
     } else {
-      setResult(`No, Bus ${busNumber.toUpperCase()} does not go to ${destination}.`);
+      setResult(`❌ No, Bus ${busNumber.toUpperCase()} does not go to ${destination}.`);
+    }
+
+    // 👇 Set map location when checking
+    if (destination in FAKE_COORDINATES) {
+      setMapLocation(FAKE_COORDINATES[destination]);
+    } else {
+      setMapLocation(null);
     }
   };
+
 
   const findBusesByDestination = () => {
     const matchingBuses = Object.entries(BUS_DATA)

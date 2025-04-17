@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import BusFinder from "./components/BusFinder";
-import MapComponent from "./components/MapComponent";
+import AdminPanel from "./components/AdminPanel";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const appStyle = {
     backgroundColor: darkMode ? "#121212" : "#f9f9f9",
@@ -24,17 +25,26 @@ function App() {
 
   return (
     <div style={appStyle}>
+      {/* Top bar with toggles */}
       <div style={{ padding: "10px", textAlign: "right" }}>
-        <button onClick={() => setDarkMode(!darkMode)}>
+        <button onClick={() => setDarkMode(!darkMode)} style={{ marginRight: "10px" }}>
           {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+        </button>
+
+        <button onClick={() => setIsAdmin(!isAdmin)}>
+          {isAdmin ? "👤 User Mode" : "🔐 Admin Panel"}
         </button>
       </div>
 
-      <h1 style={{ textAlign: "center" }}>APSRTC Bus Finder</h1>
+      {/* App Title */}
+      <h1 style={{ textAlign: "center", marginTop: "-10px" }}>
+        APSRTC Bus Finder
+      </h1>
 
-      <BusFinder />
-      <MapComponent />
+      {/* Conditional Display */}
+      {isAdmin ? <AdminPanel /> : <BusFinder />}
 
+      {/* Footer */}
       <footer style={footerStyle}>
         Developed by Chandu Aika © 2025
       </footer>
