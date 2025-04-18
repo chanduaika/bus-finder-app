@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
 
+
+const LOCAL_KEY = "APSRTC_BUSES";
+
+const buses = JSON.parse(localStorage.getItem(LOCAL_KEY)) || [];
+
+const route = buses.find((bus) => bus.number === busNumber.toUpperCase())?.stops;
+
 const BUS_DATA = {
   '222R': ['Gajuwaka', 'Kurmannapalem', 'Sheela Nagar', 'Auto Nagar', 'Nathayyapalem', 'NAD Junction', 'Yarada Road Junction', 'Maddilapalem'],
   '28K': ['Simhachalam', 'Prahladapuram', 'Adivivaram', 'Gopalapatnam', 'Kurmannapalem', 'Gajuwaka'],
@@ -155,7 +162,8 @@ const BUS_DATA = {
   '56H': ['Ongole', 'Kanigiri', 'Podili', 'Chirala'],
   '37J': ['Rajahmundry', 'Anaparthi', 'Bikkavolu', 'Mandapeta'],
   '75K': ['Kakinada', 'Annavaram', 'Tuni', 'Peddapuram'],
-  '45L': ['Eluru', 'Chintalapudi', 'Jangareddygudem', 'Koyyalagudem']
+  '45L': ['Eluru', 'Chintalapudi', 'Jangareddygudem', 'Koyyalagudem'],
+  '143L': ['Vizianagaram', 'Phoolbagh', 'Nellimarla','Gurla', 'Kalavacharla', 'Kotagandredu', 'Kothapeta', 'Garikivalasa', 'Kenguva']
 };
 
 const destinations = [...new Set(Object.values(BUS_DATA).flat())];
@@ -175,22 +183,25 @@ export default function BusFinder() {
   const [mapLocation, setMapLocation] = useState(null); // 👈 new state
   console.log("Destination:", destination);
   console.log("Map location:", mapLocation);
+  const [foundBus, setFoundBus] = useState(null);
 
-  const checkBusRoute = () => {
-    const route = BUS_DATA[busNumber.toUpperCase()];
-    if (route && route.includes(destination)) {
-      setResult(`✅ Yes, Bus ${busNumber.toUpperCase()} passes through ${destination}.`);
-    } else {
-      setResult(`❌ No, Bus ${busNumber.toUpperCase()} does not go to ${destination}.`);
-    }
+const checkBusRoute = () => {
+  const route = BUS_DATA[busNumber.toUpperCase()];
+  setFoundBus(route); // ✅ store route for preview
 
-    // 👇 Set map location when checking
-    if (destination in FAKE_COORDINATES) {
-      setMapLocation(FAKE_COORDINATES[destination]);
-    } else {
-      setMapLocation(null);
-    }
-  };
+  if (route && route.includes(destination)) {
+    setResult(`✅ Yes, Bus ${busNumber.toUpperCase()} passes through ${destination}.`);
+  } else {
+    setResult(`❌ No, Bus ${busNumber.toUpperCase()} does not go to ${destination}.`);
+  }
+
+  if (destination in FAKE_COORDINATES) {
+    setMapLocation(FAKE_COORDINATES[destination]);
+  } else {
+    setMapLocation(null);
+  }
+};
+
 
 
   const findBusesByDestination = () => {
@@ -222,6 +233,32 @@ export default function BusFinder() {
         />
         <button onClick={checkBusRoute} style={{ padding: '8px 16px' }}>Check</button>
         {result && <p>{result}</p>}
+        {foundBus && (
+  <div style={{
+    marginTop: "1rem",
+    padding: "1rem",
+    border: "1px solid #ccc",
+    borderRadius: "10px",
+    backgroundColor: "#f8f8f8"
+  }}>
+    <h3>📍 Route Preview for Bus {busNumber.toUpperCase()}:</h3>
+    <ul style={{ listStyle: "none", paddingLeft: 0 }}>
+      {foundBus.map((stop, index) => (
+        <li key={index} style={{ textAlign: "center", marginBottom: "12px" }}>
+          {index === 0 && <span>🟢 </span>}
+          {index === foundBus.length - 1 && <span>🔴 </span>}
+          {index !== 0 && index !== foundBus.length - 1 && <span>• </span>}
+          <strong>{stop}</strong>
+          {index !== foundBus.length - 1 && <div style={{ fontSize: "20px", color: "#aaa" }}>↓</div>}
+        </li>
+      ))}
+    </ul>
+    <p style={{ textAlign: "center" }}>
+      ⏱️ Estimated Time: <strong>{foundBus.length * 10} mins</strong>
+    </p>
+  </div>
+)}
+
       </div>
 
       <div style={{ border: '1px solid #ccc', padding: '16px' }}>
